@@ -43,7 +43,8 @@ namespace GraphicSort_Forms
                 new ComboItem {ID = 2, Text = "StephSort"},
                 new ComboItem {ID = 3, Text = "InsertionSort"},
                 new ComboItem {ID = 4, Text = "MinSelectionSort"},
-                new ComboItem {ID = 5, Text = "MaxSelectionSort"}
+                new ComboItem {ID = 5, Text = "MaxSelectionSort"},
+                new ComboItem {ID = 6, Text = "BogoSort"}
             };
             comboBox2.DataSource = new ComboItem[]
             {
@@ -182,6 +183,30 @@ namespace GraphicSort_Forms
                 }
             }
         }
+        private void BogoSort()
+        {
+            bool sortiert = false;
+            while(sortiert == false)
+            {
+                if (abbrechen == true)
+                {
+                    abbrechen = false;
+                    break;
+                }
+                a = Enumerable.Range(0, 100).OrderBy(c => rnd.Next()).ToArray();
+                Thread.Sleep(500);
+                PostScreen();
+                SetTime();
+                sortiert = true;
+                for (int i = 0; i< a.Length - 1; i++)
+                {
+                    if(a[i] > a[i+1])
+                    {
+                        sortiert = false;
+                    }
+                }
+            }
+        }
 
         private void SetColor()
         {
@@ -231,13 +256,32 @@ namespace GraphicSort_Forms
             label5.Invoke(new Action(() => label5.Text = elapsedTime));
         }
 
+        private void PostScreen()
+        {
+            if (design == 1)
+            {
+                for (int i = 0; i < 100; i++)
+                {
+                    grafik.DrawLine(deleter, 5 + i * 8, 600, 5 + i * 8, 0);
+                    grafik.DrawLine(stift, 5 + i * 8, 600, 5 + i * 8, 600 - a[i] * 6 - 6);
+                }
+            }
+            else
+            {
+                for (int i = 0; i < 100; i++)
+                {
+                    grafik.DrawLine(deleter, 5 + i * 8, 600, 5 + i * 8, 0);
+                    grafik.DrawLine(stift, 5 + i * 8, 600 - a[i] * 6 - 8, 5 + i * 8, 600 - a[i] * 6);
+                }
+            }
+        }
+
         private async void button1_Click(object sender, EventArgs e)
         {
             if(sortierer == null)
             {
             int auswahl = (int)comboBox1.SelectedValue;
-            int aussehen = (int)comboBox2.SelectedValue;
-            SetColor();
+                SetColor();
                 button1.Enabled = false;
                 button2.Enabled = false;
                 comboBox1.Enabled = false;
@@ -245,14 +289,7 @@ namespace GraphicSort_Forms
                 comboBox3.Enabled = false;
             stopwatch.Start();
             // design auswählen
-            if(aussehen == 1)
-            {
-                design = 1;
-            }
-            else
-            {
-                design = 2;
-            }
+            design = (int)comboBox2.SelectedValue;
                 // sortieren starten
             if (auswahl == 1)
             {
@@ -274,6 +311,10 @@ namespace GraphicSort_Forms
             {
                 sortierer = Task.Run(() => MaxSelectionSort());
             }
+            else if(auswahl == 6)
+                {
+                    sortierer = Task.Run(() => BogoSort());
+                }
             else
             {
                 sortierer = Task.Run(() => BubbleSort());
@@ -299,24 +340,8 @@ namespace GraphicSort_Forms
             stopwatch.Reset();
             button1.Enabled = true;
             a = Enumerable.Range(0, 100).OrderBy(c => rnd.Next()).ToArray();
-            int aussehen = (int)comboBox2.SelectedValue;
             SetColor();
-            if (aussehen == 1)
-            {
-                for (int i = 0; i < 100; i++)
-                {
-                    grafik.DrawLine(deleter, 5 + i * 8, 600, 5 + i * 8, 0);
-                    grafik.DrawLine(stift, 5 + i * 8, 600, 5 + i * 8, 600 - a[i] * 6 - 6);
-                }
-            }
-            else
-            {
-                for (int i = 0; i < 100; i++)
-                {
-                    grafik.DrawLine(deleter, 5 + i * 8, 600, 5 + i * 8, 0);
-                    grafik.DrawLine(stift, 5 + i * 8, 600 - a[i] * 6 - 8, 5 + i * 8, 600 - a[i] * 6);
-                }
-            }
+            PostScreen();
         }
 
         private void button3_Click(object sender, EventArgs e)
