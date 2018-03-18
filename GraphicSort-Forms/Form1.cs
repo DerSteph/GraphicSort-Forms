@@ -19,7 +19,11 @@ namespace GraphicSort_Forms
         static Pen stift = new Pen(Color.Red, 8);
         static Pen deleter = new Pen(Color.LightGray, 8);
         static Graphics grafik;
+        Stopwatch stopwatch = new Stopwatch();
+        static int design = 1;
         static int[] a = new int[100];
+        private Task sortierer;
+        static bool abbrechen = false;
 
         public Form1()
         {
@@ -56,28 +60,35 @@ namespace GraphicSort_Forms
         private void BubbleSort()
         {
             for (int i = 0; i < a.Length; i++)
-            {
-                for (int j = 0; j < a.Length - 1 - i; j++)
                 {
-                    if (a[j] > a[j + 1])
+                    if (abbrechen == true)
                     {
-                        int h = a[j + 1];
-                        a[j + 1] = a[j];
-                        a[j] = h;
-                        ChangePosition(j, j + 1);
+                    abbrechen = false;
+                        break;
+                    }
+                    for (int j = 0; j < a.Length - 1 - i; j++)
+                    {
+                        if (a[j] > a[j + 1])
+                        {
+                            int h = a[j + 1];
+                            a[j + 1] = a[j];
+                            a[j] = h;
+                            ChangePosition(j, j + 1);
+                            SetTime();
+                        }
                     }
                 }
-            }
-            for (int i = 0; i < 100; i++)
-            {
-                Debug.Write(a[i]);
-            }
         }
 
         private void InsertionSort()
         {
             for (int i = 1; i < a.Length; i++)
             {
+                if (abbrechen == true)
+                {
+                    abbrechen = false;
+                    break;
+                }
                 int k = i;
                 for (k = i; k > 0; k--)
                 {
@@ -87,6 +98,7 @@ namespace GraphicSort_Forms
                         a[k] = a[k - 1];
                         a[k - 1] = h;
                         ChangePosition(k, k - 1);
+                        SetTime();
                     }
                 }
             }
@@ -95,6 +107,11 @@ namespace GraphicSort_Forms
         {
             for (int i = a.Length - 1; i >= 0; i--)
             {
+                if (abbrechen == true)
+                {
+                    abbrechen = false;
+                    break;
+                }
                 int max = i;
                 for (int j = i - 1; j >= 0; j--)
                 {
@@ -107,6 +124,7 @@ namespace GraphicSort_Forms
                 a[max] = a[i];
                 a[i] = h;
                 ChangePosition(i, max);
+                SetTime();
                 Thread.Sleep(50);
             }
             for (int i = 0; i < a.Length; i++)
@@ -118,6 +136,11 @@ namespace GraphicSort_Forms
         {
             for (int i = 0; i < a.Length - 1; i++)
             {
+                if (abbrechen == true)
+                {
+                    abbrechen = false;
+                    break;
+                }
                 int min = i;
                 for (int j = i + 1; j < a.Length; j++)
                 {
@@ -130,7 +153,33 @@ namespace GraphicSort_Forms
                 a[min] = a[i];
                 a[i] = h;
                 ChangePosition(min, i);
+                SetTime();
                 Thread.Sleep(50);
+            }
+        }
+        private void StephSort()
+        {
+            bool solange = true;
+            while (solange == true)
+            {
+                if (abbrechen == true)
+                {
+                    abbrechen = false;
+                    break;
+                }
+                solange = false;
+                for (int i = 0; i < a.Length - 1; i++)
+                {
+                    if (a[i] > a[i + 1])
+                    {
+                        solange = true;
+                        int h = a[i];
+                        a[i] = a[i + 1];
+                        a[i + 1] = h;
+                        ChangePosition(i, i + 1);
+                        SetTime();
+                    }
+                }
             }
         }
 
@@ -155,32 +204,9 @@ namespace GraphicSort_Forms
             }
         }
 
-        private void StephSort()
-        {
-            bool solange = true;
-            while (solange == true)
-            {
-                solange = false;
-                for (int i = 0; i < a.Length - 1; i++)
-                {
-                    if (a[i] > a[i + 1])
-                    {
-                        solange = true;
-                        int h = a[i];
-                        a[i] = a[i + 1];
-                        a[i + 1] = h;
-                        Console.Beep(5000 + 50 * a[i], 20);
-                        ChangePosition(i, i + 1);
-                    }
-                }
-            }
-        }
-
         private void ChangePosition(int x1, int x2)
         {
-            int aussehen = (int)comboBox2.SelectedValue;
-
-            if (aussehen == 1)
+            if (design == 1)
             {
                 grafik.DrawLine(deleter, 5 + x1 * 8, 600, 5 + x1 * 8, 600 - a[x2] * 6 - 6);
                 grafik.DrawLine(stift, 5 + x1 * 8, 600, 5 + x1 * 8, 600 - a[x1] * 6 - 6);
@@ -196,34 +222,70 @@ namespace GraphicSort_Forms
             }
         }
 
-        private void button1_Click(object sender, EventArgs e)
+        private void SetTime()
         {
+            TimeSpan ts = stopwatch.Elapsed;
+            string elapsedTime = String.Format("{0:00}:{1:00}:{2:00}",
+            ts.Minutes, ts.Seconds,
+            ts.Milliseconds / 10);
+            label5.Invoke(new Action(() => label5.Text = elapsedTime));
+        }
+
+        private async void button1_Click(object sender, EventArgs e)
+        {
+            if(sortierer == null)
+            {
             int auswahl = (int)comboBox1.SelectedValue;
             int aussehen = (int)comboBox2.SelectedValue;
             SetColor();
-            if (auswahl == 1)
+                button1.Enabled = false;
+                button2.Enabled = false;
+                comboBox1.Enabled = false;
+                comboBox2.Enabled = false;
+                comboBox3.Enabled = false;
+            stopwatch.Start();
+            // design auswählen
+            if(aussehen == 1)
             {
-                BubbleSort();
-            }
-            else if (auswahl == 2)
-            {
-                StephSort();
-            }
-            else if (auswahl == 3)
-            {
-                InsertionSort();
-            }
-            else if (auswahl == 4)
-            {
-                MinSelectionSort();
-            }
-            else if (auswahl == 5)
-            {
-                MaxSelectionSort();
+                design = 1;
             }
             else
             {
-
+                design = 2;
+            }
+                // sortieren starten
+            if (auswahl == 1)
+            {
+                sortierer = Task.Run(() => BubbleSort());
+            }
+            else if (auswahl == 2)
+            {
+                sortierer = Task.Run(() => StephSort());
+            }
+            else if (auswahl == 3)
+            {
+                sortierer = Task.Run(() => InsertionSort());
+            }
+            else if (auswahl == 4)
+            {
+                sortierer = Task.Run(() => MinSelectionSort());
+            }
+            else if (auswahl == 5)
+            {
+                sortierer = Task.Run(() => MaxSelectionSort());
+            }
+            else
+            {
+                sortierer = Task.Run(() => BubbleSort());
+            }
+            await sortierer;
+            sortierer = null;
+            stopwatch.Stop();
+                button1.Enabled = true;
+                button2.Enabled = true;
+                comboBox1.Enabled = true;
+                comboBox2.Enabled = true;
+                comboBox3.Enabled = true;
             }
         }
 
@@ -234,7 +296,7 @@ namespace GraphicSort_Forms
 
         private void button2_Click(object sender, EventArgs e)
         {
-            label1.Visible = false;
+            stopwatch.Reset();
             button1.Enabled = true;
             a = Enumerable.Range(0, 100).OrderBy(c => rnd.Next()).ToArray();
             int aussehen = (int)comboBox2.SelectedValue;
@@ -254,6 +316,15 @@ namespace GraphicSort_Forms
                     grafik.DrawLine(deleter, 5 + i * 8, 600, 5 + i * 8, 0);
                     grafik.DrawLine(stift, 5 + i * 8, 600 - a[i] * 6 - 8, 5 + i * 8, 600 - a[i] * 6);
                 }
+            }
+        }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            if(sortierer != null)
+            {
+                abbrechen = true;
+                sortierer = null;
             }
         }
     }
