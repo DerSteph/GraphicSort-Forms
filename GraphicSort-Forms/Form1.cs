@@ -24,6 +24,10 @@ namespace GraphicSort_Forms
         static int[] a = new int[100];
         private Task sortierer;
         static bool abbrechen = false;
+        static int zeit = 0;
+
+        static int swaps = 0;
+        static int compares = 0;
 
         public Form1()
         {
@@ -60,11 +64,15 @@ namespace GraphicSort_Forms
                 }
                 for (int j = 0; j < a.Length - 1 - i; j++)
                 {
+                    //ColorCompare(j, j+1);
+                    AddCompare();
+                    Thread.Sleep(zeit * 10);
                     if (a[j] > a[j + 1])
                     {
                         int h = a[j + 1];
                         a[j + 1] = a[j];
                         a[j] = h;
+                        AddSwap();
                         ChangePosition(j, j + 1);
                         SetTime();
                     }
@@ -84,8 +92,11 @@ namespace GraphicSort_Forms
                 int k = i;
                 for (k = i; k > 0; k--)
                 {
+                    ColorCompare(k, k - 1);
+                    AddCompare();
                     if (a[k] < a[k - 1])
                     {
+                        AddSwap();
                         int h = a[k];
                         a[k] = a[k - 1];
                         a[k - 1] = h;
@@ -107,17 +118,20 @@ namespace GraphicSort_Forms
                 int max = i;
                 for (int j = i - 1; j >= 0; j--)
                 {
+                    ColorCompare(j, max);
+                    AddCompare();
                     if (a[j] > a[max])
                     {
                         max = j;
                     }
                 }
+                AddSwap();
                 int h = a[max];
                 a[max] = a[i];
                 a[i] = h;
                 ChangePosition(i, max);
                 SetTime();
-                Thread.Sleep(50);
+                //Thread.Sleep(50);
             }
             for (int i = 0; i < a.Length; i++)
             {
@@ -136,17 +150,20 @@ namespace GraphicSort_Forms
                 int min = i;
                 for (int j = i + 1; j < a.Length; j++)
                 {
+                    ColorCompare(j, min);
+                    AddCompare();
                     if (a[j] < a[min])
                     {
                         min = j;
                     }
                 }
+                AddSwap();
                 int h = a[min];
                 a[min] = a[i];
                 a[i] = h;
                 ChangePosition(min, i);
                 SetTime();
-                Thread.Sleep(50);
+                //Thread.Sleep(50);
             }
         }
         private void StephSort()
@@ -162,9 +179,12 @@ namespace GraphicSort_Forms
                 solange = false;
                 for (int i = 0; i < a.Length - 1; i++)
                 {
+                    ColorCompare(i, i + 1);
+                    AddCompare();
                     if (a[i] > a[i + 1])
                     {
                         solange = true;
+                        AddSwap();
                         int h = a[i];
                         a[i] = a[i + 1];
                         a[i + 1] = h;
@@ -186,11 +206,13 @@ namespace GraphicSort_Forms
                 }
                 a = Enumerable.Range(0, 100).OrderBy(c => rnd.Next()).ToArray();
                 Thread.Sleep(500);
-                PostScreen();
+                PostScreen(false);
                 SetTime();
                 sortiert = true;
                 for (int i = 0; i < a.Length - 1; i++)
                 {
+                    ColorCompare(i, i + 1);
+                    AddCompare();
                     if (a[i] > a[i + 1])
                     {
                         sortiert = false;
@@ -238,6 +260,25 @@ namespace GraphicSort_Forms
             }
         }
 
+        private void ColorCompare(int x1, int x2)
+        {
+            if (design == 1)
+            {
+                Pen black = new Pen(Color.Black, 8);
+                grafik.DrawLine(black, 5 + x1 * 8, 600, 5 + x1 * 8, 600 - a[x1] * 6 - 6);
+                grafik.DrawLine(black, 5 + x2 * 8, 600, 5 + x2 * 8, 600 - a[x2] * 6 - 6);
+                grafik.DrawLine(stift, 5 + x1 * 8, 600, 5 + x1 * 8, 600 - a[x1] * 6 - 6);
+                grafik.DrawLine(stift, 5 + x2 * 8, 600, 5 + x2 * 8, 600 - a[x2] * 6 - 6);
+            }
+            /*else
+            {
+                grafik.DrawLine(deleter, 5 + x1 * 8, 600 - a[x2] * 6 - 8, 5 + x1 * 8, 600 - a[x2] * 6);
+                grafik.DrawLine(stift, 5 + x1 * 8, 600 - a[x1] * 6 - 8, 5 + x1 * 8, 600 - a[x1] * 6);
+                grafik.DrawLine(deleter, 5 + x2 * 8, 600 - a[x1] * 6 - 8, 5 + x2 * 8, 600 - a[x1] * 6);
+                grafik.DrawLine(stift, 5 + x2 * 8, 600 - a[x2] * 6 - 8, 5 + x2 * 8, 600 - a[x2] * 6);
+            }*/
+        }
+
         private void SetTime()
         {
             TimeSpan ts = stopwatch.Elapsed;
@@ -247,8 +288,12 @@ namespace GraphicSort_Forms
             label5.Invoke(new Action(() => label5.Text = elapsedTime));
         }
 
-        private void PostScreen()
+        private void PostScreen(bool start)
         {
+            if(start == true)
+            {
+                Thread.Sleep(100);
+            }
             if (design == 1)
             {
                 for (int i = 0; i < 100; i++)
@@ -267,12 +312,42 @@ namespace GraphicSort_Forms
             }
         }
 
+        private void ResetScreen()
+        {
+            swaps = 0;
+            compares = 0;
+            label1.Text = "S: 0";
+            label6.Text = "C: 0";
+            stopwatch.Reset();
+            button1.Enabled = true;
+            design = (int)comboBox2.SelectedValue;
+            a = Enumerable.Range(0, 100).OrderBy(c => rnd.Next()).ToArray();
+            SetColor();
+            PostScreen(false);
+        }
+
+        private void AddSwap()
+        {
+            swaps = swaps + 1;
+            label1.Invoke(new Action(() => label1.Text = "S: " + swaps));
+        }
+
+        private void AddCompare()
+        {
+            compares = compares + 1;
+            label6.Invoke(new Action(() => label6.Text = "C: " + compares));
+        }
         private async void button1_Click(object sender, EventArgs e)
         {
             if (sortierer == null)
             {
                 int auswahl = (int)comboBox1.SelectedValue;
+                design = (int)comboBox2.SelectedValue;
+                trackBar1.Enabled = false;
+                zeit = trackBar1.Value;
+                Debug.WriteLine(zeit);
                 SetColor();
+                PostScreen(false);
                 button1.Enabled = false;
                 button2.Enabled = false;
                 comboBox1.Enabled = false;
@@ -315,6 +390,7 @@ namespace GraphicSort_Forms
                 stopwatch.Stop();
                 button1.Enabled = true;
                 button2.Enabled = true;
+                trackBar1.Enabled = true;
                 comboBox1.Enabled = true;
                 comboBox2.Enabled = true;
                 comboBox3.Enabled = true;
@@ -328,11 +404,7 @@ namespace GraphicSort_Forms
 
         private void button2_Click(object sender, EventArgs e)
         {
-            stopwatch.Reset();
-            button1.Enabled = true;
-            a = Enumerable.Range(0, 100).OrderBy(c => rnd.Next()).ToArray();
-            SetColor();
-            PostScreen();
+            ResetScreen();
         }
 
         private void button3_Click(object sender, EventArgs e)
@@ -349,9 +421,15 @@ namespace GraphicSort_Forms
             // beim Start muss er ein Random Bild laden
             a = Enumerable.Range(0, 100).OrderBy(c => rnd.Next()).ToArray();
             grafik = this.pictureBox1.CreateGraphics();
-            Thread.Sleep(1000);
-            await Task.Run(() => PostScreen());
+            await Task.Run(() =>
+            PostScreen(true)
+            );
         }
+
+        /*private void comboBox3_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            ResetScreen();
+        }*/
     }
     class ComboItem
     {
