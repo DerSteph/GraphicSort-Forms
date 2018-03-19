@@ -33,6 +33,7 @@ namespace GraphicSort_Forms
 
         public Form1()
         {
+            // Wird beim Start ausgeführt
             InitializeComponent();
             comboBox1.DataSource = new ComboItem[]
             {
@@ -240,7 +241,7 @@ namespace GraphicSort_Forms
             }
             else
             {
-
+                stift.Color = Color.Blue;
             }
         }
 
@@ -248,17 +249,17 @@ namespace GraphicSort_Forms
         {
             if (design == 1)
             {
-                grafik.DrawLine(deleter, 5 + x1 * 8, 600, 5 + x1 * 8, 600 - a[x2] * 6 - 6);
-                grafik.DrawLine(stift, 5 + x1 * 8, 600, 5 + x1 * 8, 600 - a[x1] * 6 - 6);
-                grafik.DrawLine(deleter, 5 + x2 * 8, 600, 5 + x2 * 8, 600 - a[x1] * 6 - 6);
-                grafik.DrawLine(stift, 5 + x2 * 8, 600, 5 + x2 * 8, 600 - a[x2] * 6 - 6);
+                grafik.DrawLine(deleter, 4 + x1 * 8, 600, 4 + x1 * 8, 0);
+                grafik.DrawLine(stift, 4 + x1 * 8, 600, 4 + x1 * 8, 600 - a[x1] * 6);
+                grafik.DrawLine(deleter, 4 + x2 * 8, 600, 4 + x2 * 8, 0);
+                grafik.DrawLine(stift, 4 + x2 * 8, 600, 4 + x2 * 8, 600 - a[x2] * 6);
             }
             else
             {
-                grafik.DrawLine(deleter, 5 + x1 * 8, 600 - a[x2] * 6 - 8, 5 + x1 * 8, 600 - a[x2] * 6);
-                grafik.DrawLine(stift, 5 + x1 * 8, 600 - a[x1] * 6 - 8, 5 + x1 * 8, 600 - a[x1] * 6);
-                grafik.DrawLine(deleter, 5 + x2 * 8, 600 - a[x1] * 6 - 8, 5 + x2 * 8, 600 - a[x1] * 6);
-                grafik.DrawLine(stift, 5 + x2 * 8, 600 - a[x2] * 6 - 8, 5 + x2 * 8, 600 - a[x2] * 6);
+                grafik.DrawLine(deleter, 4 + x1 * 8, 600 - a[x2] * 6 - 8, 4 + x1 * 8, 600 - a[x2] * 6);
+                grafik.DrawLine(stift, 4 + x1 * 8, 600 - a[x1] * 6 - 8, 4 + x1 * 8, 600 - a[x1] * 6);
+                grafik.DrawLine(deleter, 4 + x2 * 8, 600 - a[x1] * 6 - 8, 4 + x2 * 8, 600 - a[x1] * 6);
+                grafik.DrawLine(stift, 4 + x2 * 8, 600 - a[x2] * 6 - 8, 4 + x2 * 8, 600 - a[x2] * 6);
             }
         }
 
@@ -283,10 +284,7 @@ namespace GraphicSort_Forms
 
         private void SetTime()
         {
-            TimeSpan ts = stopwatch.Elapsed;
-            string elapsedTime = String.Format("{0:00}:{1:00}:{2:00}",
-            ts.Minutes, ts.Seconds,
-            ts.Milliseconds / 10);
+            string elapsedTime = String.Format("{0:00}:{1:00}:{2:00}", stopwatch.Elapsed.Minutes, stopwatch.Elapsed.Seconds, stopwatch.Elapsed.Milliseconds / 10);
             label5.Invoke(new Action(() => label5.Text = elapsedTime));
         }
 
@@ -300,16 +298,16 @@ namespace GraphicSort_Forms
             {
                 for (int i = 0; i < 100; i++)
                 {
-                    grafik.DrawLine(deleter, 5 + i * 8, 600, 5 + i * 8, 0);
-                    grafik.DrawLine(stift, 5 + i * 8, 600, 5 + i * 8, 600 - a[i] * 6 - 6);
+                    grafik.DrawLine(deleter, 4 + i * 8, 600, 4 + i * 8, 0);
+                    grafik.DrawLine(stift, 4 + i * 8, 600, 4 + i * 8, 600 - a[i] * 6);
                 }
             }
             else
             {
                 for (int i = 0; i < 100; i++)
                 {
-                    grafik.DrawLine(deleter, 5 + i * 8, 600, 5 + i * 8, 0);
-                    grafik.DrawLine(stift, 5 + i * 8, 600 - a[i] * 6 - 8, 5 + i * 8, 600 - a[i] * 6);
+                    grafik.DrawLine(deleter, 4 + i * 8, 600, 4 + i * 8, 0);
+                    grafik.DrawLine(stift, 4 + i * 8, 600 - a[i] * 6 - 8, 4 + i * 8, 600 - a[i] * 6);
                 }
             }
         }
@@ -323,7 +321,11 @@ namespace GraphicSort_Forms
             stopwatch.Reset();
             button1.Enabled = true;
             design = (int)comboBox2.SelectedValue;
-            a = Enumerable.Range(0, 100).OrderBy(c => rnd.Next()).ToArray();
+            a = Enumerable.Range(1, 100).OrderBy(c => rnd.Next()).ToArray();
+            for(int i = 0; i < 100; i++)
+            {
+                Debug.Write(a[i] + ", ");
+            }
             SetColor();
             PostScreen(false);
         }
@@ -429,7 +431,7 @@ namespace GraphicSort_Forms
         private async void Form1_Load_1(object sender, EventArgs e)
         {
             // da er beim Start manchmal länger braucht die Picturebox zu laden, geschiet dies asynchron zu einem späteren Zeitpunkt
-            a = Enumerable.Range(0, 100).OrderBy(c => rnd.Next()).ToArray();
+            a = Enumerable.Range(1, 100).OrderBy(c => rnd.Next()).ToArray();
             grafik = this.pictureBox1.CreateGraphics();
             await Task.Run(() =>
             PostScreen(true)
