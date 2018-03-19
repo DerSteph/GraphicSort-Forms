@@ -16,15 +16,17 @@ namespace GraphicSort_Forms
     {
         // Globale Variablen und Objekte
         public static Random rnd = new Random();
+        static int[] a = new int[100];
+        static Graphics grafik;
         static Pen stift = new Pen(Color.Blue, 8);
         static Pen deleter = new Pen(Color.LightGray, 8);
-        static Graphics grafik;
         Stopwatch stopwatch = new Stopwatch();
-        static int design = 1;
-        static int[] a = new int[100];
+
         private Task sortierer;
+
         static bool abbrechen = false;
         static int zeit = 0;
+        static int design = 1;
 
         static int swaps = 0;
         static int compares = 0;
@@ -92,7 +94,7 @@ namespace GraphicSort_Forms
                 int k = i;
                 for (k = i; k > 0; k--)
                 {
-                    ColorCompare(k, k - 1);
+                    //ColorCompare(k, k - 1);
                     AddCompare();
                     if (a[k] < a[k - 1])
                     {
@@ -118,7 +120,7 @@ namespace GraphicSort_Forms
                 int max = i;
                 for (int j = i - 1; j >= 0; j--)
                 {
-                    ColorCompare(j, max);
+                    //ColorCompare(j, max);
                     AddCompare();
                     if (a[j] > a[max])
                     {
@@ -150,7 +152,7 @@ namespace GraphicSort_Forms
                 int min = i;
                 for (int j = i + 1; j < a.Length; j++)
                 {
-                    ColorCompare(j, min);
+                    //ColorCompare(j, min);
                     AddCompare();
                     if (a[j] < a[min])
                     {
@@ -179,7 +181,7 @@ namespace GraphicSort_Forms
                 solange = false;
                 for (int i = 0; i < a.Length - 1; i++)
                 {
-                    ColorCompare(i, i + 1);
+                    //ColorCompare(i, i + 1);
                     AddCompare();
                     if (a[i] > a[i + 1])
                     {
@@ -337,26 +339,29 @@ namespace GraphicSort_Forms
             compares = compares + 1;
             label6.Invoke(new Action(() => label6.Text = "C: " + compares));
         }
+
+        //Startbutton
         private async void button1_Click(object sender, EventArgs e)
         {
+            // prüft, ob bereits eine Instanz läuft
             if (sortierer == null)
             {
+                // prüfen der parameter für Farbe, Dauer und Aussehen
                 int auswahl = (int)comboBox1.SelectedValue;
                 design = (int)comboBox2.SelectedValue;
-                trackBar1.Enabled = false;
                 zeit = trackBar1.Value;
-                Debug.WriteLine(zeit);
                 SetColor();
+                // generiert nochmal ein Bild, falls nach einem Abbruch mit anderen Parametern gearbeitet wird
                 PostScreen(false);
+                // deaktiviert die Steuerknöpfe und Regler
+                trackBar1.Enabled = false;
                 button1.Enabled = false;
                 button2.Enabled = false;
                 comboBox1.Enabled = false;
                 comboBox2.Enabled = false;
                 comboBox3.Enabled = false;
                 stopwatch.Start();
-                // design auswählen
-                design = (int)comboBox2.SelectedValue;
-                // sortieren starten
+                // Wählt den Algorithmus aus
                 if (auswahl == 1)
                 {
                     sortierer = Task.Run(() => BubbleSort());
@@ -385,7 +390,9 @@ namespace GraphicSort_Forms
                 {
                     sortierer = Task.Run(() => BubbleSort());
                 }
+                // Algorithmus wird asynchron ausgeführt, damit sich das Programm nicht aufhängt, während es läuft
                 await sortierer;
+                // Löscht die Instanz wieder, stoppt die Uhr und aktiviert die Knöpfe
                 sortierer = null;
                 stopwatch.Stop();
                 button1.Enabled = true;
@@ -402,11 +409,14 @@ namespace GraphicSort_Forms
 
         }
 
+
+        // neues zufälliges Array erstellen
         private void button2_Click(object sender, EventArgs e)
         {
             ResetScreen();
         }
 
+        // Abbruchknopf -> in jedem Algorithmus ist eine Abbruchbedingung erhalten
         private void button3_Click(object sender, EventArgs e)
         {
             if (sortierer != null)
@@ -418,19 +428,15 @@ namespace GraphicSort_Forms
 
         private async void Form1_Load_1(object sender, EventArgs e)
         {
-            // beim Start muss er ein Random Bild laden
+            // da er beim Start manchmal länger braucht die Picturebox zu laden, geschiet dies asynchron zu einem späteren Zeitpunkt
             a = Enumerable.Range(0, 100).OrderBy(c => rnd.Next()).ToArray();
             grafik = this.pictureBox1.CreateGraphics();
             await Task.Run(() =>
             PostScreen(true)
             );
         }
-
-        /*private void comboBox3_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            ResetScreen();
-        }*/
     }
+    // Definierung des Arrays für die Dropdownmenüs
     class ComboItem
     {
         public int ID { get; set; }
