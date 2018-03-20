@@ -9,13 +9,14 @@ using System.Threading.Tasks;
 using System.Threading;
 using System.Windows.Forms;
 using System.Diagnostics;
+using System.Media;
 
 namespace GraphicSort_Forms
 {
     public partial class Form1 : Form
     {
         // Globale Variablen und Objekte
-        public static Random rnd = new Random();
+        static Random rnd = new Random();
         static int[] a = new int[100];
         static Graphics grafik;
         static Pen stift = new Pen(Color.Blue, 8);
@@ -116,10 +117,10 @@ namespace GraphicSort_Forms
                     if (a[k] < a[k - 1])
                     {
                         Thread.Sleep(zeit * 10);
-                        AddSwap();
                         int h = a[k];
                         a[k] = a[k - 1];
                         a[k - 1] = h;
+                        AddSwap();
                         ChangePosition(k, k - 1);
                         ColorSwap(k, k-1);
                     }
@@ -151,10 +152,10 @@ namespace GraphicSort_Forms
                     }
                 }
                 Thread.Sleep(zeit * 10);
-                AddSwap();
                 int h = a[max];
                 a[max] = a[i];
                 a[i] = h;
+                AddSwap();
                 ColorSwap(i, max);
                 ChangePosition(i, max);
             }
@@ -184,10 +185,10 @@ namespace GraphicSort_Forms
                     }
                 }
                 Thread.Sleep(zeit * 10);
-                AddSwap();
                 int h = a[min];
                 a[min] = a[i];
                 a[i] = h;
+                AddSwap();
                 ColorSwap(min, i);
                 ChangePosition(min, i);
             }
@@ -208,6 +209,7 @@ namespace GraphicSort_Forms
                 sortiert = true;
                 for (int i = 0; i < a.Length - 1; i++)
                 {
+                    Thread.Sleep(zeit * 10);
                     SetTime();
                     ColorCompare(i, i + 1);
                     AddCompare();
