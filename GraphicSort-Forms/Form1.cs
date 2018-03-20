@@ -256,10 +256,10 @@ namespace GraphicSort_Forms
             }
             else
             {
-                grafik.DrawLine(deleter, 4 + x1 * 8, 600 - a[x2] * 6 - 8, 4 + x1 * 8, 600 - a[x2] * 6);
-                grafik.DrawLine(stift, 4 + x1 * 8, 600 - a[x1] * 6 - 8, 4 + x1 * 8, 600 - a[x1] * 6);
-                grafik.DrawLine(deleter, 4 + x2 * 8, 600 - a[x1] * 6 - 8, 4 + x2 * 8, 600 - a[x1] * 6);
-                grafik.DrawLine(stift, 4 + x2 * 8, 600 - a[x2] * 6 - 8, 4 + x2 * 8, 600 - a[x2] * 6);
+                grafik.DrawLine(deleter, 4 + x1 * 8, 600 - a[x2] * 6, 4 + x1 * 8, 600 - a[x2] * 6+6);
+                grafik.DrawLine(stift, 4 + x1 * 8, 600 - a[x1] * 6, 4 + x1 * 8, 600 - a[x1] * 6+6);
+                grafik.DrawLine(deleter, 4 + x2 * 8, 600 - a[x1] * 6, 4 + x2 * 8, 600 - a[x1] * 6+6);
+                grafik.DrawLine(stift, 4 + x2 * 8, 600 - a[x2] * 6, 4 + x2 * 8, 600 - a[x2] * 6+6);
             }
         }
 
@@ -307,7 +307,7 @@ namespace GraphicSort_Forms
                 for (int i = 0; i < 100; i++)
                 {
                     grafik.DrawLine(deleter, 4 + i * 8, 600, 4 + i * 8, 0);
-                    grafik.DrawLine(stift, 4 + i * 8, 600 - a[i] * 6 - 8, 4 + i * 8, 600 - a[i] * 6);
+                    grafik.DrawLine(stift, 4 + i * 8, 600 - a[i] * 6, 4 + i * 8, 600 - a[i] * 6+6);
                 }
             }
         }
@@ -362,6 +362,7 @@ namespace GraphicSort_Forms
                 comboBox1.Enabled = false;
                 comboBox2.Enabled = false;
                 comboBox3.Enabled = false;
+                button3.Enabled = true;
                 stopwatch.Start();
                 // Wählt den Algorithmus aus
                 if (auswahl == 1)
@@ -399,6 +400,7 @@ namespace GraphicSort_Forms
                 stopwatch.Stop();
                 button1.Enabled = true;
                 button2.Enabled = true;
+                button3.Enabled = false;
                 trackBar1.Enabled = true;
                 comboBox1.Enabled = true;
                 comboBox2.Enabled = true;
