@@ -27,6 +27,7 @@ namespace GraphicSort_Forms
         static bool abbrechen = false;
         static int zeit = 0;
         static int design = 1;
+        static bool enablecolorcompare = false;
 
         static int swaps = 0;
         static int compares = 0;
@@ -38,11 +39,10 @@ namespace GraphicSort_Forms
             comboBox1.DataSource = new ComboItem[]
             {
                 new ComboItem {ID = 1, Text = "BubbleSort"},
-                new ComboItem {ID = 2, Text = "StephSort"},
-                new ComboItem {ID = 3, Text = "InsertionSort"},
-                new ComboItem {ID = 4, Text = "MinSelectionSort"},
-                new ComboItem {ID = 5, Text = "MaxSelectionSort"},
-                new ComboItem {ID = 6, Text = "BogoSort"}
+                new ComboItem {ID = 2, Text = "InsertionSort"},
+                new ComboItem {ID = 3, Text = "MinSelectionSort"},
+                new ComboItem {ID = 4, Text = "MaxSelectionSort"},
+                new ComboItem {ID = 5, Text = "BogoSort"}
             };
             comboBox2.DataSource = new ComboItem[]
             {
@@ -56,6 +56,12 @@ namespace GraphicSort_Forms
                 new ComboItem {ID = 3, Text = "green"}
             };
         }
+
+        /*
+         * Sortieralgorithen
+         * 
+         */
+
         private void BubbleSort()
         {
             for (int i = 0; i < a.Length; i++)
@@ -67,9 +73,14 @@ namespace GraphicSort_Forms
                 }
                 for (int j = 0; j < a.Length - 1 - i; j++)
                 {
-                    //ColorCompare(j, j+1);
-                    AddCompare();
+                    if (abbrechen == true)
+                    {
+                        break;
+                    }
                     Thread.Sleep(zeit * 10);
+                    AddCompare();
+                    SetTime();
+                    ColorCompare(j, j + 1);
                     if (a[j] > a[j + 1])
                     {
                         int h = a[j + 1];
@@ -77,7 +88,7 @@ namespace GraphicSort_Forms
                         a[j] = h;
                         AddSwap();
                         ChangePosition(j, j + 1);
-                        SetTime();
+                        ColorSwap(j, j+1);
                     }
                 }
             }
@@ -87,24 +98,30 @@ namespace GraphicSort_Forms
         {
             for (int i = 1; i < a.Length; i++)
             {
+                int k = i;
                 if (abbrechen == true)
                 {
                     abbrechen = false;
                     break;
                 }
-                int k = i;
                 for (k = i; k > 0; k--)
                 {
-                    //ColorCompare(k, k - 1);
+                    if (abbrechen == true)
+                    {
+                        break;
+                    }
+                    SetTime();
                     AddCompare();
+                    ColorCompare(k, k - 1);
                     if (a[k] < a[k - 1])
                     {
+                        Thread.Sleep(zeit * 10);
                         AddSwap();
                         int h = a[k];
                         a[k] = a[k - 1];
                         a[k - 1] = h;
                         ChangePosition(k, k - 1);
-                        SetTime();
+                        ColorSwap(k, k-1);
                     }
                 }
             }
@@ -113,88 +130,66 @@ namespace GraphicSort_Forms
         {
             for (int i = a.Length - 1; i >= 0; i--)
             {
+                int max = i;
                 if (abbrechen == true)
                 {
                     abbrechen = false;
                     break;
                 }
-                int max = i;
                 for (int j = i - 1; j >= 0; j--)
                 {
-                    //ColorCompare(j, max);
+                    if (abbrechen == true)
+                    {
+                        break;
+                    }
                     AddCompare();
+                    ColorCompare(j, max);
+                    SetTime();
                     if (a[j] > a[max])
                     {
                         max = j;
                     }
                 }
+                Thread.Sleep(zeit * 10);
                 AddSwap();
                 int h = a[max];
                 a[max] = a[i];
                 a[i] = h;
+                ColorSwap(i, max);
                 ChangePosition(i, max);
-                SetTime();
-                //Thread.Sleep(50);
-            }
-            for (int i = 0; i < a.Length; i++)
-            {
-                Debug.Write(a[i] + ", ");
             }
         }
         private void MinSelectionSort()
         {
             for (int i = 0; i < a.Length - 1; i++)
             {
+                int min = i;
                 if (abbrechen == true)
                 {
                     abbrechen = false;
                     break;
                 }
-                int min = i;
                 for (int j = i + 1; j < a.Length; j++)
                 {
-                    //ColorCompare(j, min);
+                    if (abbrechen == true)
+                    {
+                        break;
+                    }
                     AddCompare();
+                    ColorCompare(j, min);
+                    SetTime();
                     if (a[j] < a[min])
                     {
                         min = j;
                     }
                 }
+                Thread.Sleep(zeit * 10);
                 AddSwap();
                 int h = a[min];
                 a[min] = a[i];
                 a[i] = h;
+                ColorSwap(min, i);
                 ChangePosition(min, i);
-                SetTime();
-                //Thread.Sleep(50);
-            }
-        }
-        private void StephSort()
-        {
-            bool solange = true;
-            while (solange == true)
-            {
-                if (abbrechen == true)
-                {
-                    abbrechen = false;
-                    break;
-                }
-                solange = false;
-                for (int i = 0; i < a.Length - 1; i++)
-                {
-                    //ColorCompare(i, i + 1);
-                    AddCompare();
-                    if (a[i] > a[i + 1])
-                    {
-                        solange = true;
-                        AddSwap();
-                        int h = a[i];
-                        a[i] = a[i + 1];
-                        a[i + 1] = h;
-                        ChangePosition(i, i + 1);
-                        SetTime();
-                    }
-                }
             }
         }
         private void BogoSort()
@@ -210,19 +205,26 @@ namespace GraphicSort_Forms
                 a = Enumerable.Range(0, 100).OrderBy(c => rnd.Next()).ToArray();
                 Thread.Sleep(500);
                 PostScreen(false);
-                SetTime();
                 sortiert = true;
                 for (int i = 0; i < a.Length - 1; i++)
                 {
+                    SetTime();
                     ColorCompare(i, i + 1);
                     AddCompare();
                     if (a[i] > a[i + 1])
                     {
                         sortiert = false;
+                        break;
                     }
                 }
             }
         }
+
+        /*
+         * Ausführbare Methoden für Grafik und Array
+         * 
+         * 
+         */
 
         private void SetColor()
         {
@@ -265,21 +267,28 @@ namespace GraphicSort_Forms
 
         private void ColorCompare(int x1, int x2)
         {
-            if (design == 1)
+            if (design == 1 && enablecolorcompare == true)
             {
                 Pen black = new Pen(Color.Black, 8);
-                grafik.DrawLine(black, 5 + x1 * 8, 600, 5 + x1 * 8, 600 - a[x1] * 6 - 6);
-                grafik.DrawLine(black, 5 + x2 * 8, 600, 5 + x2 * 8, 600 - a[x2] * 6 - 6);
-                grafik.DrawLine(stift, 5 + x1 * 8, 600, 5 + x1 * 8, 600 - a[x1] * 6 - 6);
-                grafik.DrawLine(stift, 5 + x2 * 8, 600, 5 + x2 * 8, 600 - a[x2] * 6 - 6);
+                grafik.DrawLine(black, 4 + x1 * 8, 600, 4 + x1 * 8, 600 - a[x1] * 6);
+                grafik.DrawLine(black, 4 + x2 * 8, 600, 4 + x2 * 8, 600 - a[x2] * 6);
+                Thread.Sleep(50);
+                grafik.DrawLine(stift, 4 + x1 * 8, 600, 4 + x1 * 8, 600 - a[x1] * 6);
+                grafik.DrawLine(stift, 4 + x2 * 8, 600, 4 + x2 * 8, 600 - a[x2] * 6);
             }
-            /*else
+        }
+
+        private void ColorSwap(int x1, int x2)
+        {
+            if (design == 1 && enablecolorcompare == true)
             {
-                grafik.DrawLine(deleter, 5 + x1 * 8, 600 - a[x2] * 6 - 8, 5 + x1 * 8, 600 - a[x2] * 6);
-                grafik.DrawLine(stift, 5 + x1 * 8, 600 - a[x1] * 6 - 8, 5 + x1 * 8, 600 - a[x1] * 6);
-                grafik.DrawLine(deleter, 5 + x2 * 8, 600 - a[x1] * 6 - 8, 5 + x2 * 8, 600 - a[x1] * 6);
-                grafik.DrawLine(stift, 5 + x2 * 8, 600 - a[x2] * 6 - 8, 5 + x2 * 8, 600 - a[x2] * 6);
-            }*/
+                Pen brown = new Pen(Color.Brown, 8);
+                grafik.DrawLine(brown, 4 + x1 * 8, 600, 4 + x1 * 8, 600 - a[x1] * 6);
+                grafik.DrawLine(brown, 4 + x2 * 8, 600, 4 + x2 * 8, 600 - a[x2] * 6);
+                Thread.Sleep(zeit * 10);
+                grafik.DrawLine(stift, 4 + x1 * 8, 600, 4 + x1 * 8, 600 - a[x1] * 6);
+                grafik.DrawLine(stift, 4 + x2 * 8, 600, 4 + x2 * 8, 600 - a[x2] * 6);
+            }
         }
 
         private void SetTime()
@@ -319,13 +328,10 @@ namespace GraphicSort_Forms
             label1.Text = "S: 0";
             label6.Text = "C: 0";
             stopwatch.Reset();
+            label5.Text = "00:00:00";
             button1.Enabled = true;
             design = (int)comboBox2.SelectedValue;
-            a = Enumerable.Range(1, 100).OrderBy(c => rnd.Next()).ToArray();
-            for(int i = 0; i < 100; i++)
-            {
-                Debug.Write(a[i] + ", ");
-            }
+            CreateArray();
             SetColor();
             PostScreen(false);
         }
@@ -342,11 +348,42 @@ namespace GraphicSort_Forms
             label6.Invoke(new Action(() => label6.Text = "C: " + compares));
         }
 
+        private void CreateArray()
+        {
+            if (checkBox1.Checked == false)
+            {
+                Random rnd = new Random();
+                for (int i = 0; i < a.Length; i++)
+                {
+                    a[i] = rnd.Next(1, 101);
+                }
+            }
+            else
+            {
+                a = Enumerable.Range(1, 100).OrderBy(c => rnd.Next()).ToArray();
+            }
+            PostScreen(false);
+        }
+
+        /*
+         * Buttons, Labels, Schieberegler, Dropdownmenü
+         * 
+         */
+
         //Startbutton
         private async void button1_Click(object sender, EventArgs e)
         {
+            bool notsorted = false;
+            for (int i = 0; i < a.Length-1; i++)
+            {
+                if(a[i] > a[i+1])
+                {
+                    notsorted = true;
+                    break;
+                }
+            }
             // prüft, ob bereits eine Instanz läuft
-            if (sortierer == null)
+            if (sortierer == null && notsorted == true)
             {
                 // prüfen der parameter für Farbe, Dauer und Aussehen
                 int auswahl = (int)comboBox1.SelectedValue;
@@ -356,13 +393,14 @@ namespace GraphicSort_Forms
                 // generiert nochmal ein Bild, falls nach einem Abbruch mit anderen Parametern gearbeitet wird
                 PostScreen(false);
                 // deaktiviert die Steuerknöpfe und Regler
-                trackBar1.Enabled = false;
+                //trackBar1.Enabled = false;
                 button1.Enabled = false;
                 button2.Enabled = false;
                 comboBox1.Enabled = false;
                 comboBox2.Enabled = false;
                 comboBox3.Enabled = false;
                 button3.Enabled = true;
+                checkBox1.Enabled = false;
                 stopwatch.Start();
                 // Wählt den Algorithmus aus
                 if (auswahl == 1)
@@ -371,21 +409,17 @@ namespace GraphicSort_Forms
                 }
                 else if (auswahl == 2)
                 {
-                    sortierer = Task.Run(() => StephSort());
+                    sortierer = Task.Run(() => InsertionSort());
                 }
                 else if (auswahl == 3)
                 {
-                    sortierer = Task.Run(() => InsertionSort());
+                    sortierer = Task.Run(() => MinSelectionSort());
                 }
                 else if (auswahl == 4)
                 {
-                    sortierer = Task.Run(() => MinSelectionSort());
-                }
-                else if (auswahl == 5)
-                {
                     sortierer = Task.Run(() => MaxSelectionSort());
                 }
-                else if (auswahl == 6)
+                else if (auswahl == 5)
                 {
                     sortierer = Task.Run(() => BogoSort());
                 }
@@ -401,18 +435,13 @@ namespace GraphicSort_Forms
                 button1.Enabled = true;
                 button2.Enabled = true;
                 button3.Enabled = false;
-                trackBar1.Enabled = true;
+                //trackBar1.Enabled = true;
                 comboBox1.Enabled = true;
                 comboBox2.Enabled = true;
                 comboBox3.Enabled = true;
+                checkBox1.Enabled = true;
             }
         }
-
-        private void label2_Click(object sender, EventArgs e)
-        {
-
-        }
-
 
         // neues zufälliges Array erstellen
         private void button2_Click(object sender, EventArgs e)
@@ -438,6 +467,27 @@ namespace GraphicSort_Forms
             await Task.Run(() =>
             PostScreen(true)
             );
+        }
+
+        // Slidepanel für die Geschwindigkeit
+        private void trackBar1_Scroll(object sender, EventArgs e)
+        {
+            zeit = trackBar1.Value;
+            // Prüft ob der Wert über 4 ist -> er folgt Färbung von Vergleichen und Tauschvorgängen
+            if(trackBar1.Value > 4)
+            {
+                enablecolorcompare = true;
+            }
+            else
+            {
+                enablecolorcompare = false;
+            }
+        }
+
+        // Soll gucken, ob Checkbox makiert ist -> wenn ja, soll er ein Array mit Zahlen erstellen, bei der jede nur einmalig vorhanden ist
+        private void checkBox1_CheckedChanged(object sender, EventArgs e)
+        {
+            CreateArray();
         }
     }
     // Definierung des Arrays für die Dropdownmenüs
