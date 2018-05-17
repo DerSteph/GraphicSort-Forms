@@ -1,6 +1,6 @@
 ﻿namespace GraphicSort_Forms
 {
-    partial class Form1
+    partial class FrmMain
     {
         /// <summary>
         /// Erforderliche Designervariable.
@@ -214,7 +214,7 @@
             this.label8.Size = new System.Drawing.Size(2, 30);
             this.label8.TabIndex = 21;
             // 
-            // Form1
+            // frmMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -238,7 +238,7 @@
             this.Controls.Add(this.pictureBox1);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.MaximizeBox = false;
-            this.Name = "Form1";
+            this.Name = "FrmMain";
             this.Text = "GraphicSort";
             this.Load += new System.EventHandler(this.Form1_Load_1);
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
