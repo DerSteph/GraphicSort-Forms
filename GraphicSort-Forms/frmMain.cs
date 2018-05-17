@@ -10,6 +10,7 @@ using System.Threading;
 using System.Windows.Forms;
 using System.Diagnostics;
 using System.Media;
+using System.Net.Mime;
 
 namespace GraphicSort_Forms
 {
@@ -44,22 +45,23 @@ namespace GraphicSort_Forms
             InitializeComponent();
             comboBox1.DataSource = new ComboItem[]
             {
-                new ComboItem {ID = 1, Text = "BubbleSort"},
-                new ComboItem {ID = 2, Text = "InsertionSort"},
-                new ComboItem {ID = 3, Text = "MinSelectionSort"},
-                new ComboItem {ID = 4, Text = "MaxSelectionSort"},
-                new ComboItem {ID = 5, Text = "BogoSort"}
+                new ComboItem {ID = 1, Text = "Bubblesort"},
+                new ComboItem {ID = 2, Text = "Insertionsort"},
+                new ComboItem {ID = 3, Text = "MinSelectionsort"},
+                new ComboItem {ID = 4, Text = "MaxSelectionsort"},
+                new ComboItem {ID = 5, Text = "BogoSort"},
+                new ComboItem {ID = 6, Text = "Quicksort"}
             };
             comboBox2.DataSource = new ComboItem[]
             {
-                new ComboItem {ID = 1, Text = "bar"},
-                new ComboItem {ID = 2, Text = "pixel"}
+                new ComboItem {ID = 1, Text = "Bar"},
+                new ComboItem {ID = 2, Text = "Pixel"}
             };
             comboBox3.DataSource = new ComboItem[]
             {
-                new ComboItem {ID = 1, Text = "blue"},
-                new ComboItem {ID = 2, Text = "red"},
-                new ComboItem {ID = 3, Text = "green"}
+                new ComboItem {ID = 1, Text = "Blue"},
+                new ComboItem {ID = 2, Text = "Red"},
+                new ComboItem {ID = 3, Text = "Green"}
             };
         }
 
@@ -225,6 +227,80 @@ namespace GraphicSort_Forms
                     }
                 }
             }
+        }
+
+        private void QuickSort() {
+            QuickSortRecursive(Enumerable.Range(0,99).Zip(_data, (i, d) => new Tuple<int, int>(i, d)).ToArray());
+        }
+
+        private void QuickSortRecursive(Tuple<int, int>[] list) {
+            switch (list.Length)
+            {
+                case 1:
+                    break;
+                case 2:
+                    SetTime();
+                    ColorCompare(list[1].Item1, list[1].Item1);
+                    if (list[0].Item2 > list[1].Item2)
+                    {
+                        ColorSwap(list[0].Item1, list[1].Item1);
+                    }
+                    AddCompare();
+                    break;
+                case 3:
+                    var max = list.Select(t => t.Item2).Max();
+                    var min = list.Select(t => t.Item2).Max();
+                    var maxIndex = list.First(t => t.Item2 == max).Item1;
+                    var minIndex = list.First(t => t.Item2 == min).Item1;
+
+                    //Was wir hier wirklich versuchen, ist die Permutation \in S_3 (abc) (mit a, b, c den Rängen) in die Faktoren der Form (nm) zu zerlegen
+
+                    switch (maxIndex)
+                    {
+                        case 0:
+                            ColorSwap(minIndex == 2 ? list[0].Item1 : list[1].Item1, list[2].Item1);
+                            break;
+                        case 2 when minIndex == 1:
+                            ColorSwap(list[0].Item1, list[1].Item1);
+                            break;
+                        case 2 when list[0].Item2 > list[2].Item2:
+                            ColorSwap(list[0].Item1, list[2].Item1);
+                            ColorSwap(list[1].Item1, list[0].Item1);
+                            break;
+                        case 2:
+                            ColorSwap(list[1].Item1, list[2].Item1);
+                            break;
+                    }
+
+                    break;
+                default:
+                    var pivot      = Ninther(list.Select(t => t.Item2).ToArray());
+                    var pivotIndex = list.First(t => t.Item2 == pivot).Item1;
+                    var a          = Enumerable.Range(0, pivotIndex).Select(i => list[i]).ToArray();
+                    var b          = Enumerable.Range(pivotIndex + 1, list.Length - pivotIndex - 1).Select(i => list[i]).ToArray();
+
+                    if (a.Length > 0) { QuickSortRecursive(a); }
+                    if (b.Length > 0) { QuickSortRecursive(b); }
+                    break;
+            }
+        }
+
+        private static int Ninther(int[] a)
+        {
+            //Die Indices sind gegeben durch
+            //Mathematica: Table[N[(k/3 + l/(3 (3 - 1))) n], {k, 0, 3 - 1}, {l, 0, 3 - 1}] // MatrixForm
+            //
+            //wobei n = a.Length - 1
+            var n = a.Length - 1;
+
+            return MedianOf3(
+                MedianOf3(_data[0], _data[n/6], _data[n/3]),
+                MedianOf3(_data[n/3], _data[n/2], _data[2*n/3]),
+                MedianOf3(_data[2*n/3], _data[5*n/6], _data[n]));
+        }
+
+        private static int MedianOf3(int a, int b, int c) {
+            return (a + b + c) - Math.Max(Math.Max(a, b), c) - Math.Min(Math.Min(a, b), c); //Problematisch wenn a+b+c den Maximalwert von int überstreigt
         }
 
         /*
@@ -413,8 +489,8 @@ namespace GraphicSort_Forms
                     case 5:
                         sortierer = Task.Run(() => BogoSort());
                         break;
-                    default:
-                        sortierer = Task.Run(() => BubbleSort());
+                    case 6:
+                        sortierer = Task.Run(() => QuickSort());
                         break;
                 }
                 // Algorithmus wird asynchron ausgeführt, damit sich das Programm nicht aufhängt, während es läuft
